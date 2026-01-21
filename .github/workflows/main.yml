@@ -1,0 +1,16 @@
+name: Network Security CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Run echo
+        run: echo "GitHub Actions working fine"
