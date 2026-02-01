@@ -8,11 +8,10 @@ import pandas as pd
 '''
 DEFINING COMMON CONSTANT VARIABLE FOR TRAINING PIPELINE 
 '''
-TRAGET_COLUMN="Result"
+TARGET_COLUMN="CLASS_LABEL"
 PEPELINE_NAME:str="NetworkSecurity"
 ARTIFACT_DIR:str="artifacts"
 FILE_NAME:str = "phisingData.csv"
-
 
 TRAIN_FILE_NAME:str ='train.csv'
 TEST_FILE_NAME:str ='test.csv'
@@ -40,3 +39,19 @@ DATA_VALIDATION_VALID_DIR:str = 'validated'
 DATA_VALIDATION_INVALID_DIR:str = 'invalid'
 DATA_VALIDATION_DRIFT_REPORT_DIR:str = 'drift report '
 DATA_VALIDATION_DRIFT_REPORT_FILE_NAME:str ='report.yaml'
+PREPROCESSING_OBJECT_FILE_NAME:str="Preprocessing.pkl"
+
+
+"""
+Data Transformation relateed constant start with DATA_TRANSFORMATION_VAR_NAME
+"""
+DATA_TRANSFORMATION_DIR_NAME: str = "data_transformation"
+DATA_TRANSFORMATION_TRANSFORMED_DATA_DIR:str = "transformed"
+DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR: str = "transformed_object"
+
+## Knn Imputer to replace nan values 
+DATA_TRANSFORMATION_IMPUTER_PARAMS:dict ={
+    
+    "n_neighbors":3,
+    "weights":"uniform",
+}
