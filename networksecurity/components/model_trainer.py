@@ -7,6 +7,8 @@ from networksecurity.logger.logger1 import logging
 from networksecurity.entity.artifact_entity import DataTransformationArtifact,MOdelTrainerArtifact
 from networksecurity.entity.config_entity import ModelTrainerConfig
 
+import mlflow 
+import sklearn
 
 from networksecurity.utils.ml_utils.model.estimator import NetworkModel 
 from networksecurity.utils.main_utils.Utils import save_object,load_object 
@@ -33,7 +35,28 @@ class ModelTrainer:
             
         except Exception as e:
             raise NetworkSecurityException(e,sys)
-        
+    
+    # def track_mlflow(self,best_model,classificationmetrics):
+    #     with mlflow.start_run():
+    #         f1_score=classificationmetrics.f1_score
+    #         precision_score=classificationmetrics.precision_score
+    #         recall_score= classificationmetrics.recall_score
+            
+    #         mlflow.log_metric("f1_score",f1_score,)
+    #         mlflow.log_metric('Precision',precision_score)
+    #         mlflow.log_metric('recall',recall_score)
+    #         mlflow.log_metric(best_model,"model")
+    def track_mlflow(self, best_model, classificationmetrics: dict):
+        with mlflow.start_run():
+            # log metrics
+            for metric_name, metric_value in classificationmetrics.items():
+                mlflow.log_metric(metric_name, metric_value)
+
+            # log model
+            mlflow.sklearn.log_model(best_model, "model")
+            
+            
+            
     def train_model(self,x_train,y_train,x_test,y_test):
         
         models = {
@@ -86,11 +109,25 @@ class ModelTrainer:
         
         classification_train_metrics = get_classification_score(y_true= y_train,y_pred=y_train_pred)
         
+        train_metric={
+            "f1_score":classification_train_metrics.f1_score,
+            "Precison":classification_train_metrics.precision_score,
+            "Recall":classification_train_metrics.recall_score
+        }
         ## Track the mlflow 
+        
+        self.track_mlflow(best_model,classificationmetrics=train_metric)
+        
 
         
         y_test_pred = best_model.predict(x_test)
         classification_test_metrics=get_classification_score(y_true=y_test , y_pred=y_test_pred)
+        test_metric={
+            "f1_score":classification_test_metrics.f1_score,
+            "Precison":classification_test_metrics.precision_score,
+            "Recall":classification_test_metrics.recall_score
+        }
+        self.track_mlflow(best_model=best_model,classificationmetrics=test_metric)
         
         preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_objed_file_path)
         
