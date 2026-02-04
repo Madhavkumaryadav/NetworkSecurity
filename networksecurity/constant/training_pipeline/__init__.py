@@ -8,7 +8,7 @@ import pandas as pd
 '''
 DEFINING COMMON CONSTANT VARIABLE FOR TRAINING PIPELINE 
 '''
-TARGET_COLUMN="CLASS_LABEL"
+TARGET_COLUMN="Result"
 PEPELINE_NAME:str="NetworkSecurity"
 ARTIFACT_DIR:str="artifacts"
 FILE_NAME:str = "phisingData.csv"

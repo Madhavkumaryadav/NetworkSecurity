@@ -2,65 +2,42 @@ dataset_name: phishing_website_dataset
 file_name: phisingData.csv
 
 columns:
-  id: int64
-  NumDots: int64
-  SubdomainLevel: int
-  PathLevel: int
-  UrlLength: int
-  NumDash: int
-  NumDashInHostname: int
-  AtSymbol: int
-  TildeSymbol: int
-  NumUnderscore: int
-  NumPercent: int
-  NumQueryComponents: int
-  NumAmpersand: int
-  NumHash: int
-  NumNumericChars: int
-  NoHttps: int
-  RandomString: int
-  IpAddress: int
-  DomainInSubdomains: int
-  DomainInPaths: int
-  HttpsInHostname: int
-  HostnameLength: int
-  PathLength: int
-  QueryLength: int
-  DoubleSlashInPath: int
-  NumSensitiveWords: int
-  EmbeddedBrandName: int
-
-  PctExtHyperlinks: float
-  PctExtResourceUrls: float
-
-  ExtFavicon: int
-  InsecureForms: int
-  RelativeFormAction: int
-  ExtFormAction: int
-  AbnormalFormAction: int
-
-  PctNullSelfRedirectHyperlinks: float
-
-  FrequentDomainNameMismatch: int
-  FakeLinkInStatusBar: int
-  RightClickDisabled: int
-  PopUpWindow: int
-  SubmitInfoToEmail: int
-  IframeOrFrame: int
-  MissingTitle: int
-  ImagesOnlyInForm: int
-  SubdomainLevelRT: int
-  UrlLengthRT: int
-  PctExtResourceUrlsRT: int
-  AbnormalExtFormActionR: int
-  ExtMetaScriptLinkRT: int
-  PctExtNullSelfRedirectHyperlinksRT: int
-  CLASS_LABEL: int
+  having_IP_Address: int
+  URL_Length: int
+  Shortining_Service: int
+  having_At_Symbol: int
+  double_slash_redirecting: int
+  Prefix_Suffix: int
+  having_Sub_Domain: int
+  SSLfinal_State: int
+  Domain_registeration_length: int
+  Favicon: int
+  port: int
+  HTTPS_token: int
+  Request_URL: int
+  URL_of_Anchor: int
+  Links_in_tags: int
+  SFH: int
+  Submitting_to_email: int
+  Abnormal_URL: int
+  Redirect: int
+  on_mouseover: int
+  RightClick: int
+  popUpWidnow: int
+  Iframe: int
+  age_of_domain: int
+  DNSRecord: int
+  web_traffic: int
+  Page_Rank: int
+  Google_Index: int
+  Links_pointing_to_page: int
+  Statistical_report: int
+  Result: int
 
 target_column:
-  name: CLASS_LABEL
+  name: Result
   type: int
   description: >
     Binary classification label
     1 = Phishing website
-    0 = Legitimate website
+    -1 = Legitimate website

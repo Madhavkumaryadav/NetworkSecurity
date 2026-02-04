@@ -89,13 +89,14 @@ def load_numpy_array_data(file_path:str)->np.array:
 
 def evaluate_models(x_train,y_train,x_test,y_test,models,param):
     try:
+        train_and_test_score=[]
         report={}
         
         for i in range(len(list(models))):
             model=list(models.values())[i]
             para=param[list(models.keys())[i]]
             
-            gs=GridSearchCV(model,para,cv=3)
+            gs=GridSearchCV(model,para,cv=3,scoring='r2')
             gs.fit(x_train,y_train)
             
             model.set_params(**gs.best_params_)
@@ -109,8 +110,13 @@ def evaluate_models(x_train,y_train,x_test,y_test,models,param):
             train_model_score=r2_score(y_train,y_train_pred)
             test_model_score=r2_score(y_test,y_test_pred)
             
+            ## Prining the score for the each model 
+            score=[para,train_model_score,test_model_score]
+            train_and_test_score.append(score)
+            score.clear()
             report[list(models.keys())[i]] = test_model_score
-        
+        for i in train_and_test_score:
+            print(i)
         return report 
             
     except Exception as e:

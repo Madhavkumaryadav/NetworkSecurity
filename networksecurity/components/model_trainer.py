@@ -26,6 +26,11 @@ from sklearn.ensemble import (
     GradientBoostingClassifier,
     RandomForestClassifier,
 )
+import mlflow 
+
+import dagshub 
+dagshub.init(repo_owner='Madhavkumaryadav', repo_name='NetworkSecurity', mlflow=True)
+
 
 class ModelTrainer:
     def __init__(self,model_trainer_config:ModelTrainerConfig,data_transformation_artifact:DataTransformationArtifact):
@@ -98,6 +103,13 @@ class ModelTrainer:
         # TO get best model score from dict 
         best_model_score = max(sorted(model_report.values()))
         
+        # Find the Best Model Name in The log section 
+        best_model_name1='' 
+        for i in model_report.keys():
+            if model_report[i] == best_model_score:
+                best_model_name1 += i 
+        # store the log information for the best model name 
+        logging.info(f"Best Model Name : {best_model_name1}")
         # To get best model name form dict 
         
         best_model_name = list(model_report.keys())[
