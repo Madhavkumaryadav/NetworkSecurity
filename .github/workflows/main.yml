@@ -1,16 +1,53 @@
-name: Network Security CI
+name: CI Workflow
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-test:
+    name: Build & Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Run echo
-        run: echo "GitHub Actions working fine"
+      # ───────────────────────────────────────
+      # Setup your language/runtime (examples)
+      # ───────────────────────────────────────
+      - name: Set up Python
+        if: contains(github.event.head_commit.message, '[python]') || true
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        if: false   # ← remove or change condition
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ───────────────────────────────────────
+      # Install dependencies & run real checks
+      # ───────────────────────────────────────
+      - name: Install dependencies
+        run: |
+          echo "Replace with: pip install -r requirements.txt"
+          echo "or: npm ci"
+
+      - name: Lint code
+        run: |
+          echo "Replace with: flake8 .  or  black --check ."
+          echo "or: npm run lint"
+
+      - name: Run tests
+        run: |
+          echo "Replace with: pytest"
+          echo "or: npm test"
