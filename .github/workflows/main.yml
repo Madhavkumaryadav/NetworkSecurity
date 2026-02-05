@@ -1,16 +1,22 @@
-name: Network Security CI
+name: workflow 
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main 
+    paths-ignore:
+      - 'README.md'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  integration:
+    name: Continuous Integration 
+    runs-on: ubuntu-latest 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout Code 
+        user: actions/checkout@v3
+        
+      - name: Lint Code 
+        run: echo "Linting repository"
 
-      - name: Run echo
-        run: echo "GitHub Actions working fine"
+      - name: Run unit tests 
+        run: echo "Running Unit Tests"
