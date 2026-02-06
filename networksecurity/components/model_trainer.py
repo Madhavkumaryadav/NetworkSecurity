@@ -27,9 +27,16 @@ from sklearn.ensemble import (
     RandomForestClassifier,
 )
 import mlflow 
+import dagshub
 
-import dagshub 
-dagshub.init(repo_owner='Madhavkumaryadav', repo_name='NetworkSecurity', mlflow=True)
+try:
+    dagshub.init(
+        repo_owner="Madhavkumaryadav",
+        repo_name="NetworkSecurity",
+        mlflow=True
+    )
+except Exception as e:
+    print("⚠️ DagsHub not connected. Running offline mode.")
 
 
 class ModelTrainer:
