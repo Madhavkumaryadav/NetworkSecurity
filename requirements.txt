@@ -1,17 +1,19 @@
-﻿python-dotenv
-pandas 
+# Core dependencies
+python-dotenv
+pandas
 numpy
-pymongo
+pymongo>=4.0
 certifi
 scikit-learn==1.5.2
 
-pymongo>=4.0
+# ML / Experiment tracking
 dagshub
-mlflow
-pyaml
-fastapi 
-uvicorn 
+mlflow>=2.10.0          # Upgrade from very old 1.27.0 to fix protobuf 'service' import error
+pyyaml                  # pyaml → pyyaml (correct package name)
 
+# API / Server
+fastapi
+uvicorn
 
-
-# -e .
+# Optional: pin protobuf if you want extra safety (usually not needed with mlflow >=2.10)
+# protobuf>=3.12.0,<5.0
