@@ -5,7 +5,7 @@ import os,sys
 import numpy as np
 import pickle 
 from sklearn.model_selection import GridSearchCV 
-from sklearn.metrics import r2_score
+from sklearn.metrics import f1_score
 
 def read_yaml_file(file_path:str):
     try:
@@ -22,9 +22,9 @@ def write_yaml_file(file_path:str,content:object,replace:bool=False)->None:
         if replace:
             if os.path.exists(file_path):
                 os.remove(file_path)
-            os.makedirs(os.path.dirname(file_path),exist_ok=True)
-            with open(file_path,'w') as file:
-                yaml.dump(content,file)
+        os.makedirs(os.path.dirname(file_path),exist_ok=True)
+        with open(file_path,'w') as file:
+            yaml.dump(content,file)
                 
     except Exception as e:
         raise NetworkSecurityException(e,sys)
@@ -89,34 +89,28 @@ def load_numpy_array_data(file_path:str)->np.array:
 
 def evaluate_models(x_train,y_train,x_test,y_test,models,param):
     try:
-        train_and_test_score=[]
         report={}
         
         for i in range(len(list(models))):
             model=list(models.values())[i]
             para=param[list(models.keys())[i]]
             
-            gs=GridSearchCV(model,para,cv=3,scoring='r2')
+            gs=GridSearchCV(model,para,cv=3,scoring='f1_weighted')
             gs.fit(x_train,y_train)
             
             model.set_params(**gs.best_params_)
             model.fit(x_train,y_train)
             
-            ## Model.fit(x_train,y_train) # train Model 
-            
             y_train_pred = model.predict(x_train)
             y_test_pred = model.predict(x_test)
             
-            train_model_score=r2_score(y_train,y_train_pred)
-            test_model_score=r2_score(y_test,y_test_pred)
+            train_model_score=f1_score(y_train,y_train_pred,average='weighted',zero_division=0)
+            test_model_score=f1_score(y_test,y_test_pred,average='weighted',zero_division=0)
             
-            ## Prining the score for the each model 
-            score=[para,train_model_score,test_model_score]
-            train_and_test_score.append(score)
-            score.clear()
+            logging.info(
+                f"{list(models.keys())[i]} -> train f1: {train_model_score:.4f}, test f1: {test_model_score:.4f}"
+            )
             report[list(models.keys())[i]] = test_model_score
-        for i in train_and_test_score:
-            print(i)
         return report 
             
     except Exception as e:
