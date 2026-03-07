@@ -1,45 +1,55 @@
 # Network Security - Phishing & Intrusion Detection System
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-success)](https://streamlit.io/)
+[![Python](https://img.shields.io/badge/Python-3.11-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688)](https://fastapi.tiangolo.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/Madhavkumaryadav/NetworkSecurity/actions/workflows/main.yml/badge.svg)](https://github.com/Madhavkumaryadav/NetworkSecurity/actions)
 
 A machine learning-based system to detect **phishing websites** and malicious network activity using standard phishing and network intrusion datasets.
 
-The project includes model training, experiment tracking with MLflow, data storage with MongoDB, and a user-friendly web interface built with Streamlit.
+The project includes a full ML training pipeline, experiment tracking with MLflow, data storage with MongoDB, a FastAPI web server for predictions, and a Docker-ready deployment setup.
 
 ## Features
 
-- Pre-trained ML model for binary classification (benign vs malicious/phishing)
-- Batch prediction via CSV file upload
-- Basic manual input for single-sample testing
-- MLflow integration for experiment tracking
-- MongoDB support for storing processed data (optional)
+- Pre-trained ML model for binary classification (Legitimate vs Phishing)
+- Batch prediction via CSV file upload (REST API endpoint)
+- Reusable `BatchPrediction` pipeline module
+- MLflow integration for experiment tracking (with DagsHub remote)
+- Data drift detection using the Kolmogorov-Smirnov test
+- MongoDB support for storing raw data (optional — local CSV also supported)
 - Docker-ready setup
-- Attempted FastAPI backend (currently under refactoring)
+- GitHub Actions CI with lint and test steps
 
 ## Project Structure
+
+```
 NetworkSecurity/
-├── app.py                    # Main Streamlit application
-├── requirements.txt          # Project dependencies
-├── final_models/             # Saved trained models (.pkl, .joblib)
-├── mlruns/                   # MLflow experiment tracking artifacts
-├── Network_Data/             # Sample or processed datasets
-├── valid_data/               # Validated/featured data
-├── networksecurity/          # Core package
-│   ├── components/           # Data ingestion, validation, model training
-│   ├── pipeline/             # Training & prediction pipelines
-│   └── utils/                # Helper functions
+├── app.py                    # FastAPI web server (train + predict endpoints)
+├── main.py                   # CLI entry point for the full training pipeline
+├── requirements.txt          # Python dependencies
 ├── Dockerfile                # Container configuration
-├── .env                      # Environment variables (gitignored)
-├── .gitignore
-└── README.md
+├── data_schema/
+│   └── schema.yaml           # Feature definitions (30 columns + target)
+├── final_models/             # Saved trained models (.pkl)
+├── prediction_output/        # Batch prediction output CSVs
+├── templates/                # Jinja2 HTML templates for prediction table
+├── tests/                    # Unit tests (pytest)
+├── networksecurity/          # Core package
+│   ├── components/           # Data ingestion, validation, transformation, training
+│   ├── pipeline/             # TrainingPipeline + BatchPrediction
+│   ├── utils/                # Helper functions (YAML, pickle, numpy, evaluation)
+│   ├── entity/               # Config and artifact dataclasses
+│   ├── exception/            # Custom exception with traceback details
+│   ├── logger/               # File-based logger
+│   └── constant/             # Pipeline-wide constants
+└── .github/workflows/        # CI/CD workflow (lint + test)
+```
 
 ## Installation
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.11 (recommended)
 - Git
 
 ### Steps
@@ -49,68 +59,103 @@ NetworkSecurity/
    ```bash
    git clone https://github.com/Madhavkumaryadav/NetworkSecurity.git
    cd NetworkSecurity
-Create and activate a virtual environment
+   ```
 
-python -m venv venv
+2. Create and activate a virtual environment
 
-# Windows
-venv\Scripts\activate
+   ```bash
+   python -m venv venv
+   source venv/bin/activate      # Linux / macOS
+   # venv\Scripts\activate       # Windows
+   ```
 
-# Linux / macOS
-source venv/bin/activate
-Install dependencies
+3. Install dependencies
 
-pip install -r requirements.txt
-(Optional) Set up environment variables
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Create a .env file in the root folder and add your MongoDB connection string if you're using the database features:
+4. (Optional) Set up environment variables
 
-MONGODB_URL=your_mongodb_connection_string
-Run the application
+   Create a `.env` file in the root folder:
 
-streamlit run app.py
-The app should open in your browser at http://localhost:8501.
+   ```
+   MONGODB_URL_KEY=your_mongodb_connection_string
+   MONGO_DB_URL=your_mongodb_connection_string
+   ```
 
-Usage
-Batch Prediction
-Go to the "Batch Prediction" section
-Upload a CSV file containing the required features
-Click "Predict" to get results for all rows
-Single Sample Prediction
-Enter feature values manually
-Submit to see the prediction result
-Note: Make sure your input data matches the features your model was trained on.
+## Running the Application
 
-Deployment
-The app is intended to be deployed on Streamlit Community Cloud.
+### FastAPI Web Server
 
-Current known issue: Deployment fails on Python 3.13 due to dependency build errors (especially with catboost and protobuf).
-Workaround (recommended):
+```bash
+python app.py
+```
 
-Add a file named .python-version in the root with content:
-3.11
-Or manually set Python version to 3.11/3.12 in Streamlit Cloud app settings
-After fixing, reboot the app from the dashboard.
+The server starts at `http://localhost:8000`.
 
-Technologies Used
-Core: Python, scikit-learn, pandas, numpy, joblib
-Web Interface: Streamlit
-Experiment Tracking: MLflow + DagsHub
-Database: MongoDB (via pymongo)
-API Layer (partial): FastAPI + Uvicorn
-Containerization: Docker
-Roadmap / Future Improvements
-Fix Streamlit Cloud deployment compatibility
-Remove FastAPI code from Streamlit app (move to separate backend if needed)
-Add model performance metrics and visualizations (confusion matrix, ROC curve)
-Improve input validation and feature documentation
-Add SHAP/LIME explainability for predictions
-Support real-time network traffic analysis (scapy/pyshark integration)
-Better error handling and user feedback
-Contributing
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/`      | GET    | Redirects to interactive API docs (`/docs`) |
+| `/train` | GET    | Runs the full training pipeline |
+| `/predict` | POST | Upload a CSV to get batch predictions |
+
+### Training Pipeline (CLI)
+
+```bash
+python main.py
+```
+
+Runs data ingestion → validation → transformation → model training. Artifacts are saved under `artifacts/`.
+
+### Batch Prediction (Python API)
+
+```python
+from networksecurity.pipeline.batch_prediction import BatchPrediction
+
+bp = BatchPrediction(input_file_path="path/to/features.csv")
+output_path = bp.initiate_batch_prediction()
+print(f"Predictions written to: {output_path}")
+```
+
+### Docker
+
+```bash
+docker build -t network-security .
+docker run -p 8000:8000 network-security
+```
+
+## Running Tests
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
+
+## Technologies Used
+
+| Category | Technologies |
+|----------|-------------|
+| Core ML | Python, scikit-learn, pandas, numpy |
+| Web API | FastAPI, Uvicorn |
+| Experiment Tracking | MLflow, DagsHub |
+| Database | MongoDB (pymongo) |
+| Containerization | Docker |
+| CI/CD | GitHub Actions |
+
+## Roadmap / Future Improvements
+
+- Add SHAP/LIME model explainability
+- Support real-time network traffic analysis (scapy/pyshark)
+- Add confusion matrix and ROC curve visualizations
+- Improve input validation with Pydantic models
+- Expand unit test coverage
+- Add model performance comparison dashboard
+
+## Contributing
+
 Contributions are welcome!
-Please feel free to:
 
-Open an issue if you find bugs or have feature ideas
-Submit pull requests for fixes or improvements
-Improve documentation
+- Open an issue if you find bugs or have feature ideas
+- Submit pull requests for fixes or improvements
+- Improve documentation

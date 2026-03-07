@@ -19,35 +19,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ───────────────────────────────────────
-      # Setup your language/runtime (examples)
-      # ───────────────────────────────────────
       - name: Set up Python
-        if: contains(github.event.head_commit.message, '[python]') || true
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
-      - name: Set up Node.js
-        if: false   # ← remove or change condition
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      # ───────────────────────────────────────
-      # Install dependencies & run real checks
-      # ───────────────────────────────────────
       - name: Install dependencies
         run: |
-          echo "Replace with: pip install -r requirements.txt"
-          echo "or: npm ci"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest flake8
 
       - name: Lint code
         run: |
-          echo "Replace with: flake8 .  or  black --check ."
-          echo "or: npm run lint"
+          flake8 networksecurity/ app.py main.py \
+            --max-line-length=120 \
+            --extend-ignore=E501,W503 \
+            --exclude=__pycache__
 
       - name: Run tests
         run: |
-          echo "Replace with: pytest"
-          echo "or: npm test"
+          pytest tests/ -v --tb=short

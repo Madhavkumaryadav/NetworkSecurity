@@ -9,13 +9,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 mongo_db_url = os.getenv("MONGODB_URL_KEY")
-print(mongo_db_url)
 
 
 from networksecurity.exception.exception import NetworkSecurityException 
 from networksecurity.logger.logger1 import logging 
 
 from networksecurity.pipeline.training_Pipeline import TrainingPipeline
+from networksecurity.pipeline.batch_prediction import BatchPrediction
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI,File,UploadFile,Request 
@@ -61,7 +61,7 @@ async def train_route():
     try:
         train_pipeline=TrainingPipeline()
         train_pipeline.run_pipeline()
-        return Response("Trainingis Successful")
+        return Response("Training is Successful")
     
     except Exception as e:
         raise NetworkSecurityException(e,sys)
@@ -70,21 +70,15 @@ async def train_route():
 async  def predict_route(request:Request , file:UploadFile = File(...)):
     try:
         df=pd.read_csv(file.file)
-        #print(df)
         preprocesor=load_object("final_models/preprocessor.pkl")
         final_model=load_object("final_models/models.pkl")
         network_model = NetworkModel(preprocessor = preprocesor,model=final_model)
-        print(df.iloc[0])
         y_pred=network_model.predict(df)
-        print(y_pred)
         df['predicted_column']=y_pred 
-        print(df['predicted_column'])
+        df['predicted_label']=df['predicted_column'].map({1:"Phishing",0:"Legitimate",-1:"Legitimate"})
         
-        #df['predicted_column'].replace(-1,0)
-        # return df.to_json()
         df.to_csv("prediction_output/output.csv")
         table_html = df.to_html(classes='table table-striped')
-        # Print(table )
         
         return templates.TemplateResponse("table.html",{"request":request ,"table":table_html})
         
